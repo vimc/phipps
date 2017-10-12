@@ -20,13 +20,8 @@
 ##'   is the default) the data is pulled from the ggplot object.  This
 ##'   is probably the right thing to do.
 ##'
-##' @param do_plot Logical, indicating if the plot should also be
-##'   printed to the null device (the screen, or whatever knitr has
-##'   running).
-##'
 ##' @export
-figure_with_metadata <- function(object, filename, meta, ...,
-                                        data = NULL, do_plot = TRUE) {
+figure_with_metadata <- function(object, filename, meta, ..., data = NULL) {
   if (!inherits(object, "ggplot")) {
     stop("Expected a ggplot object")
   }
@@ -44,10 +39,6 @@ figure_with_metadata <- function(object, filename, meta, ...,
 
   write.csv(data %||% object$data, filename_data, row.names = FALSE)
   writeLines(yaml::as.yaml(meta), filename_meta)
-
-  if (do_plot) {
-    print(object)
-  }
 
   invisible(object)
 }

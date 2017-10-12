@@ -4,8 +4,7 @@
 \alias{figure_with_metadata}
 \title{Make figure with metadata}
 \usage{
-figure_with_metadata(object, filename, meta, ..., data = NULL,
-  do_plot = TRUE)
+figure_with_metadata(object, filename, meta, ..., data = NULL)
 }
 \arguments{
 \item{object}{A ggplot2 object (must inherit from \code{ggplot})}
@@ -23,10 +22,6 @@ opened. Things like width, height, etc.}
 \item{data}{The data used to create the plot.  If not given (which
 is the default) the data is pulled from the ggplot object.  This
 is probably the right thing to do.}
-
-\item{do_plot}{Logical, indicating if the plot should also be
-printed to the null device (the screen, or whatever knitr has
-running).}
 }
 \description{
 Helper for producing plots+data+metadata artefacts for orderly.
