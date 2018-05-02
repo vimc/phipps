@@ -109,53 +109,24 @@ cum_metric_by_year <- function(i,res,vaccine_vector){
 #' Filter a data frame (or equivalent) based on a set of parameters
 #'
 #' @param dat A data frame to be filtered
-#' @param country_set A string denoted a set of countries: "gavi73", "gavi69",
-#'                   "pine" or NULL
-#' @param vaccine_type A vector of string denoting the type of vaccination type
-#'                     "campaign" or "routine"
-#' @param vaccine A vector of string denoting the vaccine "JE", "Measles", "MenA",
-#'                "Rubella", "YF", "HepB", "Hib3", "HPV", "MCV2", "PCV3", "Rota"
-#' @param country A vector of strings of ISO country codes e.g. "BGD"
-#' @param continent A vector of strings for continents e.g. "Asia"
-#' @param region A vector of strings for continents e.g. "Southern Asia"
-#' @param metric A vector of strings for metric "cases_averted", "deaths_averted",
-#'               "future_deaths_averted", "future_cases_averted"
-#' @param year_lo A numeric value the lower bound for the year filtering
-#' @param year_hi A numeric value the upper bound for the year filtering
-#' @param support_type A string idincating the support type, usually "gavi" or
-#'                     "total"
-#' @param is_focal A boolean, indicating whether or not to use the focal model
-#' @param model A string indicating which model to use, only used if is_focal is
-#'              FALSE
-#' @param touchstone A vector of string indicating which touchstones to use
+#' @param params A list of parameters for the to filter data against. Can 
+#'               include 'country_set', 'vaccine_type', 'vaccine', 'country',
+#'               'continent', 'region', 'metric', 'year_lo', 'year_hi',
+#'               'support_type', 'is_focal', 'model', 'touchstone'
 #'
 #' @return The filtered data frame
-# params_select <- function(dat,
-#                           country_set  = NULL,
-#                           vaccine_type = NULL,
-#                           vaccine      = NULL,
-#                           country      = NULL,
-#                           continent    = NULL,
-#                           region       = NULL,
-#                           metric       = NULL,
-#                           year_first   = NULL,
-#                           year_last    = NULL,
-#                           support_type = "gavi",
-#                           is_focal     = TRUE,
-#                           model        = NULL,
-#                           touchstone   = NULL) {
-params_select <- function(dat, params) {
+filter_by_params <- function(dat, params) {
   # Filter by country set
   pine <- c("PAK", "IND", "NGA", "ETH")
   if (!is.null(params$country_set)) {
     if (params$country_set == "gavi73") {
       dat <- dat %>%
         filter(gavi73)
-    } else if(params$country_set == "gavi69") {
+    } else if (params$country_set == "gavi69") {
       dat <- dat %>%
         filter(gavi73) %>%
         filter(!(params$country %in% pine))
-    } else if(params$ountry_set == "pine") {
+    } else if (params$ountry_set == "pine") {
       dat <- dat %>%
         filter(params$country %in% pine)
     } else {
@@ -165,28 +136,24 @@ params_select <- function(dat, params) {
 
   # filter by activity type / vaccine type
   if (!is.null(params$vaccine_type)) {
-    dat <- dat %>% filter(activity_type %in%params$ vaccine_type)
+    dat <- dat %>% filter(activity_type %in% params$vaccine_type)
   }
 
 
   # filter by vaccine
   if (!is.null(params$vaccine)) {
-    vaccine_param <- vaccine
     dat <- dat %>% filter(vaccine %in% params$vaccine)
   }
   # filter by country, continent or region
   # TODO there should be some logic here, indicating how this parameters
   # interact with one another
   if (!is.null(params$country)) {
-    country_param <- country
     dat <- dat %>% filter(country %in% params$country)
   }
   if (!is.null(params$continent)) {
-    continent_param <- continent
     dat <- dat %>% filter(continent %in% params$continent)
   }
   if (!is.null(params$region)) {
-    region_param <- region
     dat <- dat %>% filter(region %in% params$region)
     }
 
@@ -210,7 +177,6 @@ params_select <- function(dat, params) {
 
   # filter by support type
   if (!is.null(params$support_type)) {
-    support_param <- params$support_type
     dat <- dat %>% filter(support_type %in% params$support)
   }
 
@@ -219,14 +185,12 @@ params_select <- function(dat, params) {
     dat <- dat %>% filter(params$is_focal)
   } else {
     if (!is.null(params$model)) {
-      model_param <- model
       dat <- dat %>% filter(model %in% params$model)
     }
   }
 
   # filter by touchstone
   if (!is.null(params$touchstone)) {
-    touchstone_param <- params$touchstone
     dat <- dat %>% filter(touchstone %in% params$touchstone)
   }
 

@@ -50,11 +50,7 @@ prep_impact_top_countries <- function(dat, params) {
   ## Shorten the country names
   dat$country_name = sapply(dat$country_name, shorten_name, USE.NAMES=FALSE)
   ## main filtering:
-  dat <- dat %>%
-    filter(touchstone %in% params$touchstone,
-           year >= params$year_first,
-           year <= params$year_last,
-           country %in% params$countries)
+  dat <- filter_by_params(dat, params)
 
   if (nrow(dat) == 0)
     stop("no data with specified parameters")

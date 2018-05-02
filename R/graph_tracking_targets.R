@@ -29,27 +29,13 @@ graph_tracking_targets <- function(dat, params) {
   if (is.null(params$label_red_dotted)) {
     params$label_red_dotted <- params$touchstone_red_dotted
   }
-print(params$metric)
+
   # filter data based on the parameters
-  dat <- params_select(dat          = dat,
-                       country_set  = params$country_set,
-                       vaccine_type = params$vaccine_type,
-                       vaccine      = params$vaccine,
-                       country      = params$country,
-                       continent    = params$continent,
-                       region       = params$region,
-                       metric       = params$metric,
-                       year_first   = params$year_first,
-                       year_last    = params$year_last,
-                       support_type = params$support_type,
-                       is_focal     = params$focal_model,
-                       touchstone   = c(params$touchstone_blue,
-                                        params$touchstone_red,
-                                        params$touchstone_red_dotted))
+  dat <- filter_by_params(dat, params)
   # set up the y axis labels
   if (params$metric %in% c("deaths_averted", "future_deaths_averted")) {
     y_label  <- "Future Deaths Averted"
-  } else if(params$outcome %in% c("cases_averted", "future_cases_averted")) {
+  } else if (params$outcome %in% c("cases_averted", "future_cases_averted")) {
     y_label <- "Future Cases Averted"
   }
 
@@ -72,7 +58,7 @@ print(params$metric)
 
   # Picking the title
   plot_title <- set_tracking_title(params)
-  print(res)
+
   #========== The_plot
   the_plot <- ggplot(res, aes(x = year, y = metric_short, colour = label,
                               linetype = label)) +
