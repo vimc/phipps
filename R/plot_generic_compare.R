@@ -13,31 +13,49 @@
 #' @return A ggplot object
 #' @export
 plot_generic_compare <- function(dat, params, compare, disciminent) {
-  dat$outcome <- impact_data[, params$metric]
-  dat$compare <- impact_data[, compare]
-  dat$disc    <- impact_data[, disciminent]
-  
-  print(table(dat$disc))
-  
+  dat$country_name = sapply(dat$country_name, shorten_name, USE.NAMES = FALSE)
+
+  dat$outcome <- dat[, params$metric]
+  dat$compare <- dat[, compare]
+  dat$disc    <- dat[, disciminent]
+
   dat <- filter_by_params(dat, params)
-  
-  print(table(dat$disc))
-  
+
   dat <- dat %>%
     group_by(compare, disc) %>%
     summarize(outcome = sum(outcome, na.rm = TRUE)) %>%
     arrange(desc(outcome))
+
+  units <- graph_num_div(max(dat$outcome), params$metric)
+  dat$outcome <- dat$outcome / units$numdiv
   
-  print(table(dat$disc))
+  # find the top n_plot compares by outcome
+  df_top_compares <- dat %>%
+    group_by(compare) %>%
+    summarize(outcome = sum(outcome, na.rm = TRUE)) %>%
+    arrange(desc(outcome))
+
+  top_compares <- df_top_compares$compare
+  if (params$n_plot < length(top_compares))
+    top_compares <- top_compares[1:params$n_plot]
   
+  dat <- dat %>%
+    filter(compare %in% top_compares)
+  
+  dat$compare <-
+    factor(dat$compare, levels = top_compares)
+
   ggplot(dat, aes(x = compare,
                   y = outcome,
                   fill = disc)) +
     geom_bar(stat = "identity", color = "black") + 
-    xlab("") + 
+    theme_bw() +
     theme(panel.grid.major = element_blank(),
           panel.grid.minor = element_blank(),
+          axis.text.x = element_text(angle = 90, hjust = 1),
           legend.title = element_blank()) +
+    xlab("") + 
+    ylab(units$ylabscale) + 
     
     ggtitle(params$title)
 }
