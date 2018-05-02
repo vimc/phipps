@@ -1,0 +1,14 @@
+Package: phipps
+Type: Package
+Title: VIMC plotting functions
+Version: 0.0.1
+Author: James Thompson
+Maintainer: James Thompson <james.thompson@imperial.ac.uk>
+Description: VIMC plotting functions.
+Depends: R (>= 3.1.0)
+Imports: devtools, dplyr, ggplot2, RColorBrewer, vdiffr, testthat
+License: What license is it under?
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.0.1
+Suggests: testthat
