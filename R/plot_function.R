@@ -125,7 +125,7 @@ filter_by_params <- function(dat, params) {
     } else if (params$country_set == "gavi69") {
       dat <- dat %>%
         filter(gavi73) %>%
-        filter(!(params$country %in% pine))
+        filter(!(country %in% pine))
     } else if (params$ountry_set == "pine") {
       dat <- dat %>%
         filter(params$country %in% pine)
@@ -133,6 +133,7 @@ filter_by_params <- function(dat, params) {
       stop(sprintf("country_set %s not implemented.\n", params$country_set))
     }
   }
+  print(nrow(dat))
 
   # filter by activity type / vaccine type
   if (!is.null(params$vaccine_type)) {
