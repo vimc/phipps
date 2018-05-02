@@ -43,4 +43,22 @@ plot_parameters <- list(touchstone_blue       = "201310gavi",
                         
 plotable <- graph_tracking_targets(dat = impact_data, params = plot_parameters)
 plotable$graph
+################################################################################
+plot_parameters <- list(touchstone            = "201210gavi-201303gavi",
+                        year_first            = 2000,
+                        year_last             = 2025,
+                        year_current          = 2016,
+                        metric                = "deaths_averted",
+                        focal_model           = TRUE,
+                        vaccine_type          = NULL,
+                        vaccine               = NULL,
+                        support_type          = "gavi",
+                        country_set           = "gavi73",
+                        continent             = NULL,
+                        country               = NULL,
+                        region                = NULL,
+                        title                 = "Comparison of impact between gavi status by activity type",
+                        n_plot                = 10)
+
+plot_generic_compare(impact_data, plot_parameters, "gavi_cofin_status", "activity_type")
 ```
