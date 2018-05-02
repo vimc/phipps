@@ -95,7 +95,7 @@ prep_impact_top_countries <- function(dat, params) {
   ## dat is the long form of the dataset, for plotting.
   ## for the plot itself, it needs to be filtered for vaccine_delivery != "total"
   ## for the labels over the bars, only keep vaccine_delivery == "total".
-  return(list(dat=dat, unit=unit$unit, unit_label=unit$unit_label))
+  return(list(dat = dat, unit = unit$unit, unit_label = unit$unit_label))
 }
 
 ################################################################################
@@ -278,7 +278,7 @@ make_tidy_ylab <- function(string, unit_label = "") {
   string <- gsub("_", " ", string)
   string <- paste0("Future ", string)
 
-  if(unit_label != "") string <- paste0(string, " in ", unit_label)
+  if (unit_label != "") string <- paste0(string, " in ", unit_label)
 
   return(string)
 }
