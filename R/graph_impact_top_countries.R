@@ -149,8 +149,7 @@ graph_impact_top_countries <- function(dat, params, print_threshold = NA) {
 
   dat_bars$numlab[dat_bars$outcome < print_threshold]  <- ""
 
-  my_cols <- make_disease_colours()[
-    as.character(sort(unique(dat_bars$vaccine_delivery)))]
+  my_cols <- palette_vaccine()
   my_title <- title_impact_top_countries(params)
 
   ## the plotting:
@@ -282,91 +281,7 @@ make_tidy_ylab <- function(string, unit_label = "") {
 
   return(string)
 }
-################################################################################
-#' Creates a vector of colours for graph_impact_top_countries
-#'
-#' @return A vector of colours
-make_disease_colours <- function() {
-
-  ## this is just for routine - need to get that from Montagu.
-  disease_vector <- c("HepB",
-                      "Hib3",
-                      "HPV",
-                      "JE",
-                      "MCV2",
-                      "MenA",
-                      "PCV3",
-                      "Rota",
-                      "Rubella",
-                      "YF")
-
-  my_colours <- brewer.pal(10, "Set3")
-  names(my_colours) <- paste0("[Rout] ", disease_vector)
-
-  ## switching some colours:
-  Hib3 <- my_colours["[Rout] Hib3"]
-  JE   <- my_colours["[Rout] JE"]
-  my_colours["[Rout] Hib3"] <- JE
-  my_colours["[Rout] JE"]   <- Hib3
 
 
-  ## generating the darker colours via hsv colour space:
-  colour_matrix <- rgb2hsv(col2rgb(my_colours))
-  colour_matrix["s", ] <- colour_matrix["s", ] + 0.5
-  colour_matrix["v", ] <- colour_matrix["v", ] - 0.25
 
-  colour_matrix[colour_matrix > 1] = 1
-  colour_matrix[colour_matrix < 0] = 0
-
-  darker_my_colours <- hsv(h = colour_matrix[1, ],
-                           s = colour_matrix[2,],
-                           v = colour_matrix[3, ])
-
-  ## generating the darker colours via rgb colour space:
-  ## darker <- col2rgb(my_colours)/1.5
-  ## darker_my_colours <- rgb(t(darker), maxColorValue = 255)
-
-  names(darker_my_colours) <- paste0("[SIA] ", disease_vector)
-
-  names(darker_my_colours)[names(darker_my_colours) == "[SIA] MCV2"] <-
-    "[SIA] Measles"
-
-  darker_my_colours <- c(darker_my_colours, darker_my_colours["[SIA] Measles"])
-
-  names(darker_my_colours)[length(darker_my_colours)] <- "[SIA] MR_Measles"
-
-  darker_my_colours["[SIA] MR_Measles"] <-
-    rgb(t(col2rgb(darker_my_colours["[SIA] MR_Measles"])-5), max = 255)
-
-  disease_colours <- c(my_colours, darker_my_colours)
-
-  return(disease_colours)
-}
-
-################################################################################
-#' Simple hacky function that converts longer country names to shorter
-#' alternatives to make the plot look nicer
-#'
-#' @param name The name of the country as a string
-#'
-#' @return The shorter (where apllicable) name of the country as a string
-shorten_name <- function(name) {
-  if (is.na(name) || is.null(name))
-    return(NA)
-
-  if (name == "Congo, the Democratic Republic of the")
-    return("DR Congo")
-  if (name == "Bolivia, Plurinational State of")
-    return("Bolivia")
-  if (name == "Micronesia, Federated States of")
-    return("Micronesia")
-  if (name == "Lao People's Democratic Republic")
-    return("Laos")
-  if (name == "Korea, Democratic People's Republic of")
-    return("DPR Korea")
-  if (name == "Tanzania, United Republic of")
-    return("Tanzania")
-
-  return(name)
-}
 

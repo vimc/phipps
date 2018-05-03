@@ -44,11 +44,17 @@ plot_generic_compare <- function(dat, params, compare, disciminent) {
   
   dat$compare <-
     factor(dat$compare, levels = top_compares)
+  
+  my_cols <- generic_palette(unique(dat$disc))
+  
+  print(unique(dat$disc))
+  print(my_cols)
 
   ggplot(dat, aes(x = compare,
                   y = outcome,
-                  fill = disc)) +
+                  fill = factor(disc))) +
     geom_bar(stat = "identity", color = "black") + 
+    scale_fill_manual(values = my_cols) +
     theme_bw() +
     theme(panel.grid.major = element_blank(),
           panel.grid.minor = element_blank(),

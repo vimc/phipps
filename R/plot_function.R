@@ -133,13 +133,11 @@ filter_by_params <- function(dat, params) {
       stop(sprintf("country_set %s not implemented.\n", params$country_set))
     }
   }
-  print(nrow(dat))
 
   # filter by activity type / vaccine type
   if (!is.null(params$vaccine_type)) {
     dat <- dat %>% filter(activity_type %in% params$vaccine_type)
   }
-
 
   # filter by vaccine
   if (!is.null(params$vaccine)) {
@@ -372,6 +370,33 @@ country_set_fun <- function(country_set){
   }
 
   return(country_set_label)
+}
+
+################################################################################
+#' Simple hacky function that converts longer country names to shorter
+#' alternatives to make the plot look nicer
+#'
+#' @param name The name of the country as a string
+#'
+#' @return The shorter (where apllicable) name of the country as a string
+shorten_name <- function(name) {
+  if (is.na(name) || is.null(name))
+    return(NA)
+  
+  if (name == "Congo, the Democratic Republic of the")
+    return("DR Congo")
+  if (name == "Bolivia, Plurinational State of")
+    return("Bolivia")
+  if (name == "Micronesia, Federated States of")
+    return("Micronesia")
+  if (name == "Lao People's Democratic Republic")
+    return("Laos")
+  if (name == "Korea, Democratic People's Republic of")
+    return("DPR Korea")
+  if (name == "Tanzania, United Republic of")
+    return("Tanzania")
+  
+  return(name)
 }
 
 # selects long label for figure caption for touchstone depending whether it is a
