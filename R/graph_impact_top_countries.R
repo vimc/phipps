@@ -149,7 +149,7 @@ graph_impact_top_countries <- function(dat, params, print_threshold = NA) {
 
   dat_bars$numlab[dat_bars$outcome < print_threshold]  <- ""
 
-  my_cols <- palette_vaccine()
+  my_cols <- get_palette("vaccine_delivery", NULL)
   my_title <- title_impact_top_countries(params)
 
   ## the plotting:

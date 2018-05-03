@@ -229,19 +229,25 @@ build_meta_data <- function(params) {
 #' in short form as strings  ("", "K", "M") and y label with the long form of
 #' the units appended
 graph_num_div <- function(max_result, y_label) {
-
+  # strip out underscores
+  y_label_fixed <- gsub("_", " ", y_label)
+  # make first character of each word upper case
+  y_label_fixed <- gsub("(^|[[:space:]])([[:alpha:]])",
+                        "\\1\\U\\2",
+                        y_label_fixed, 
+                        perl = TRUE)
   if (max_result <= 1e3) {
     num_div = 1
     num_scale = ""
-    y_lab_scale = paste(y_label)}
+    y_lab_scale = paste(y_label_fixed)}
   if (max_result > 1e3) {
     num_div = 1e3
     num_scale = "K"
-    y_lab_scale = paste(y_label, "(thousands)")}
+    y_lab_scale = paste(y_label_fixed, "(thousands)")}
   if (max_result > 0.6e6) {
     num_div = 1e6
     num_scale = "M"
-    y_lab_scale = paste(y_label, "(millions)")}
+    y_lab_scale = paste(y_label_fixed, "(millions)")}
   return(list(numdiv = num_div, numscale = num_scale, ylabscale = y_lab_scale))
 }
 
