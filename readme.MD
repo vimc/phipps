@@ -62,3 +62,29 @@ plot_parameters <- list(touchstone            = "201210gavi-201303gavi",
 
 plot_generic_compare(impact_data, plot_parameters, "gavi_cofin_status", "activity_type")
 ```
+
+## Example of a simple Power Point document
+```
+doc <- create_powerpoint()
+doc <- add_title_slide(doc, "Getting to 2020: Tracking Our Impact",
+                       "December 2017", FALSE, "NULL", 1)
+plot_parameters <- list(touchstone            = "201210gavi-201303gavi",
+                        year_first            = 2000,
+                        year_last             = 2050,
+                        year_current          = 2016,
+                        metric                = "deaths_averted",
+                        focal_model           = TRUE,
+                        vaccine_type          = NULL,
+                        vaccine               = NULL,
+                        support_type          = "gavi",
+                        country_set           = "gavi73",
+                        continent             = NULL,
+                        country               = NULL,
+                        region                = NULL,
+                        title                 = "Generic title for plot",
+                        n_plot                = NULL)
+p <- plot_generic_compare(impact_data, plot_parameters, "year", "disease")
+description <- "Deaths averted by year broken down by disease"
+doc <- add_content_slide(doc, "test plot", p, description, 2)
+save_powerpoint(doc, "~/test.pptx")
+```
