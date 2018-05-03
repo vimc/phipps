@@ -6,7 +6,7 @@ Author: James Thompson
 Maintainer: James Thompson <james.thompson@imperial.ac.uk>
 Description: VIMC plotting functions.
 Depends: R (>= 3.1.0)
-Imports: devtools, dplyr, ggplot2, RColorBrewer, vdiffr, testthat
+Imports: devtools, dplyr, ggplot2, RColorBrewer, vdiffr, testthat, ReporteRs, rJava
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
