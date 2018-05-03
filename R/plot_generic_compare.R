@@ -47,9 +47,6 @@ plot_generic_compare <- function(dat, params, compare, disciminent) {
   
   my_cols <- generic_palette(unique(dat$disc))
   
-  print(unique(dat$disc))
-  print(my_cols)
-
   ggplot(dat, aes(x = compare,
                   y = outcome,
                   fill = factor(disc))) +

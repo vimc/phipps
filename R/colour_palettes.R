@@ -93,7 +93,6 @@ palette_vaccine <- function() {
 #'
 #' @return A list of colours
 generic_palette <- function(values) {
-  print(values)
   good_cols <- c("#e6194b",        # red
                  "#3cb44b",        # green
                  "#ffe119",        # yellow
