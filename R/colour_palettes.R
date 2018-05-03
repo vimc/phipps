@@ -1,4 +1,18 @@
 ################################################################################
+#' Gets the correct colour palette for a given variable name
+#'
+#' @param id The name of the parameter we want to get a palette for
+#' 
+#' @return A list of colours
+get_palette <- function(id, values) {
+  if (id == "vaccine_delivery") {
+    return(make_disease_colours())
+  } else {
+    return(generic_palette(values))
+  }
+    
+}
+################################################################################
 #' Creates a vector of colours for graph_impact_top_countries
 #'
 #' @return A vector of colours

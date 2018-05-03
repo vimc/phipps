@@ -67,7 +67,7 @@ plot_generic_compare <- function(dat, params, compare, disciminent) {
   dat$compare <-
     factor(dat$compare, levels = top_compares)
   
-  my_cols <- generic_palette(unique(dat$disc))
+  my_cols <- get_palette(disciminent, unique(dat$disc))
 
   dat$compare <- as.factor(dat$compare)
   df_top_compares$compare <- as.factor(df_top_compares$compare)
