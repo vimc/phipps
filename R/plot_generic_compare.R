@@ -28,6 +28,7 @@ plot_generic_compare <- function(dat, params, compare, disciminent) {
 
   units <- graph_num_div(max(dat$outcome), params$metric)
   dat$outcome <- dat$outcome / units$numdiv
+  top_label_shift <- max(dat$outcome) / (50 * units$numdiv) + 0.25
   
   # find the top n_plot compares by outcome
   df_top_compares <- dat %>%
@@ -39,6 +40,9 @@ plot_generic_compare <- function(dat, params, compare, disciminent) {
   if (params$n_plot < length(top_compares))
     top_compares <- top_compares[1:params$n_plot]
   
+  df_top_compares <- df_top_compares %>%
+    filter(compare %in% top_compares)
+  
   dat <- dat %>%
     filter(compare %in% top_compares)
   
@@ -46,6 +50,11 @@ plot_generic_compare <- function(dat, params, compare, disciminent) {
     factor(dat$compare, levels = top_compares)
   
   my_cols <- generic_palette(unique(dat$disc))
+  
+  print(df_top_compares)
+
+  dat$compare <- as.factor(dat$compare)
+  df_top_compares$compare <- as.factor(df_top_compares$compare)
   
   ggplot(dat, aes(x = compare,
                   y = outcome,
@@ -59,6 +68,10 @@ plot_generic_compare <- function(dat, params, compare, disciminent) {
           legend.title = element_blank()) +
     xlab("") + 
     ylab(units$ylabscale) + 
+    annotate("text", x = df_top_compares$compare, 
+                     y = df_top_compares$outcome + top_label_shift,
+                     label = as.character(signif(df_top_compares$outcome, 2)),
+                     colour = "black", size = 3) +
     
     ggtitle(params$title)
 }
