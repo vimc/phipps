@@ -45,7 +45,7 @@ plot_generic_compare <- function(dat, params, compare, disciminent) {
       summarize(outcome = sum(outcome, na.rm = TRUE)) %>%
       arrange(desc(outcome))   
   }
-               
+
   units <- graph_num_div(max(df_top_compares$outcome), params$metric)
   dat$outcome <- dat$outcome / units$numdiv
   df_top_compares$outcome <- df_top_compares$outcome / units$numdiv

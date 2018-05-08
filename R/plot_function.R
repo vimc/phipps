@@ -1,61 +1,22 @@
-
-#=====================================================
-#
-#       PLOT TO READ DILES BEFORE PLOTTING
-#
-#
-#=====================================================
-
-gap.attribution  = function(ltsg=sdf07, actual=update07) {
-
-  a <- merge(ltsg,actual,c("year","country","country_name","disease","vaccine_delivery","vaccine","activity_type"))
-  keeps <- c("year","country","country_name","disease","vaccine_delivery","vaccine","activity_type","coverage.x","population.x","fvps.x","metric.x","coverage.y","population.y","fvps.y","metric.y")
-  diff <- a[keeps]
-  names(diff) <- c("year","country","country_name","disease","vaccine_delivery","vaccine","activity_type","cov_proj","pop_proj","fvps_proj","metric_proj","cov_act","pop_act","fvps_act","metric_act")
-
-  diff[is.null(diff) ] <- 0
-
-  diff$metric_diff <- diff$metric_act-diff$metric_proj
-  diff$p  <- diff$pop_act-diff$pop_proj
-  diff$fvps  <- diff$fvps_act-diff$fvps_proj
-  diff$c  <- diff$cov_act-diff$cov_proj
-
-  diff$attrib = ""
-  diff[diff$activity_type == "routine" & diff$c == 0, ]$attrib = paste("(0) No difference")
-  diff[diff$activity_type == "campaign" & diff$fvps == 0, ]$attrib = paste("(0) No difference")
-
-  diff[diff$activity_type=="routine" & diff$cov_proj==0 & diff$cov_act>0, ]$attrib =
-    paste("(+) RI intro earlier than forecast")
-
-  diff[diff$activity_type=="routine" & diff$cov_proj>0 & diff$cov_act==0, ]$attrib =
-    paste("(-) RI intro later than forecast")
-
-  diff[diff$activity_type=="routine" & diff$c<0 & diff$cov_proj>0 & diff$cov_act>0, ]$attrib =
-    paste("(-) RI coverage lower than forecast")
-
-  diff[diff$activity_type=="routine" & diff$c>0 & diff$cov_proj>0 & diff$cov_act>0, ]$attrib =
-    paste("(+) RI coverage higher than forecast")
-
-
-  diff[diff$activity_type=="campaign" & diff$fvps_proj==0 & diff$fvps_act>0, ]$attrib =
-    paste("(+) SIA happened which was not forecast")
-
-  diff[diff$activity_type=="campaign" & diff$fvps_proj>0 & diff$fvps_act==0, ]$attrib =
-    paste("(-) SIA did not occur")
-
-  diff[diff$activity_type=="campaign" & diff$fvps <0 & diff$fvps_proj > 0 & diff$fvps_act>0, ]$attrib =
-    paste("(-) SIA reached smaller population than forecast")
-
-  diff[diff$activity_type=="campaign" & diff$fvps >0 & diff$fvps_proj > 0 & diff$fvps_act>0, ]$attrib =
-    paste("(+) SIA reached larger population than forecast")
-
-
-  diff$attrib<-as.factor(diff$attrib)
-  return(diff)
-
+################################################################################
+#' Creates a human readable label for the y axis of the graph_impact_top_countries
+#' plot
+#'
+#' @param string The name of the outcome column in the full data set, usually
+#'               "deaths_averted" or "cases_averted"
+#' @param unit_label A string for the order of magnitude e.g. "thousands",
+#'                   "millions" or "billions". usualy output from get_order_of_magnitude()
+#'
+#' @return The y label as a string
+make_tidy_ylab <- function(string, unit_label = "") {
+  
+  string <- gsub("_", " ", string)
+  string <- paste0("Future ", string)
+  
+  if (unit_label != "") string <- paste0(string, " in ", unit_label)
+  
+  return(string)
 }
-
-
 
 find.intros <- function(future=future201510gavi) {
 
