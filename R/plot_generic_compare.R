@@ -10,7 +10,7 @@
 #' @param discriminent A string of the column name in dat for the variable that
 #'                     be used to determine the block of the bar chart
 #'
-#' @return A ggplot object
+#' @return A list containt p = ggplot object, d = the data frame used in the plot
 #' @export
 plot_generic_compare <- function(dat, params, compare, disciminent) {
   dat$country_name = sapply(dat$country_name, shorten_name, USE.NAMES = FALSE)
@@ -72,7 +72,7 @@ plot_generic_compare <- function(dat, params, compare, disciminent) {
   dat$compare <- as.factor(dat$compare)
   df_top_compares$compare <- as.factor(df_top_compares$compare)
 
-  ggplot(dat, aes(x = compare,
+  p <- ggplot(dat, aes(x = compare,
                   y = outcome,
                   fill = factor(disc))) +
     geom_bar(stat = "identity", color = "black") + 
@@ -90,4 +90,6 @@ plot_generic_compare <- function(dat, params, compare, disciminent) {
                      colour = "black", size = 3) +
     
     ggtitle(params$title)
+  
+  return(list(p=p, d=dat))
 }
