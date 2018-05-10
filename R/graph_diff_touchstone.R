@@ -4,51 +4,90 @@
 #' @param dat A dataframe (or similar) of country data for ...
 #' @param params A list (TODO consider using an S3 class) of parameters or the
 #'               plot
+#' @param compare A variable to compare across               
 #' @param print_threshold
 #'
 #' @return A list containt p = ggplot object, d = the data frame used in the plot
 #' @export
-graph_diff_touchstones <- function(dat, params, print_threshold = NA) {
-  
-  dat <- prep_diff_touchstone(dat, params)
+graph_diff_touchstones <- function(dat, params, compare = NULL, print_threshold = NA, n_plot = NULL) {
+  dat$country_name = sapply(dat$country_name, shorten_name, USE.NAMES = FALSE)
+  dat <- prep_diff_touchstone(dat, params, compare)
   units <- graph_num_div(max(abs(dat$tot)), params$outcome)
-
+  
+  # normalise the outcome human readable units
   dat <- dat %>%
     mutate(outcome = tot / units$numdiv) %>%
     mutate(numlab = signif(outcome, 2))
-
-  top_label_shift <- max(dat$outcome)/(20)
+  
+  # filter so that only the top plot_n remain
+  df_top_compares <- dat %>%
+    group_by(compare) %>%
+    summarize(outcome = abs(sum(outcome, na.rm = TRUE))) %>%
+    arrange(desc(outcome))
+  
+  top_compares <- df_top_compares$compare
+  if (!is.null(n_plot)) {
+    if (n_plot < length(top_compares)) {
+      top_compares <- top_compares[1:n_plot]
+    }
+  }
+  
+  df_top_compares <- df_top_compares %>%
+    filter(compare %in% top_compares)
+  
+  dat <- dat %>%
+    filter(compare %in% top_compares)
+  
+  dat$compare <-
+    factor(dat$compare, levels = top_compares)
+  
+  rot_angle <- if (length(unique(dat$compare)) >= 4) {90} else {0}
+  
+  # set offset for label
+  top_label_shift <- max(df_top_compares$outcome) / (20)
   if (is.na(print_threshold)) {
     print_threshold <- signif(top_label_shift, 1)
   }
-
+  
   toplab <- dat %>%
-    group_by(outcome < 0) %>%
+    group_by(outcome < 0, compare) %>%
     summarise(top = sum(outcome)) %>%
     mutate(toplab = signif(top, 2))
-
+  
+  # remove labels of small value
+  small_top_labels <- which(abs(toplab$toplab) < max(df_top_compares$outcome) / (20))
+  toplab$toplab[small_top_labels] <- NA
+  small_num_labels <- which(abs(dat$numlab) < 50)
+  dat$numlab[small_num_labels] <- NA
+  
   my_cols <- brewer.pal(10, "Spectral")
   names(my_cols) <- levels(dat$gap_reason)
   
-  my_title <- title_diff_touchstones(params)
+  if (is.null(params$title)) {
+    my_title <- title_diff_touchstones(params)
+  } else {
+    my_title <- params$title
+  }
   
-  plot <- ggplot(dat, aes(x = 1, y = outcome, fill = gap_reason)) +
+  plot <- ggplot(dat, aes(x = compare, y = outcome, fill = gap_reason)) +
     geom_bar(stat = "identity", position = "stack", width = 0.8) +
     scale_fill_manual(values = my_cols) +
     ylab(units$ylabscale) +
     geom_hline(yintercept = 0, colour = "black", alpha = 1, size = 1) +
-    theme_bw() + theme(panel.grid.major = element_blank(),
-                       panel.grid.minor = element_blank(),
-                       axis.title.x = element_blank(),
-                       axis.text.x = element_blank(),
-                       axis.ticks.x = element_blank()) +
+    theme_bw() + 
+    theme(panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          axis.title.x = element_blank(),
+          axis.text.x = if (is.null(compare)) { element_blank() } else { element_text(angle = rot_angle, hjust = 0.5) },
+          axis.ticks.x = element_blank(),
+          legend.text = element_text(size = 4)) +
     theme(legend.title = element_blank(),
           legend.justification = c(1,1), legend.position = "right") +
     guides(fill = guide_legend(reverse = TRUE)) +
-    geom_text(aes(x = 1, label = numlab),
+    geom_text(aes(x = dat$compare, label = numlab),
               color = "white", size = 3,
               position = position_stack(vjust = 0.5)) +
-    annotate("text", x = 1, y = toplab$top + top_label_shift * c(1, -1),
+    annotate("text", x = toplab$compare, y = toplab$top + top_label_shift * sign(toplab$top),
              label = toplab$toplab, colour = "black", size = 4) +
     ggtitle(my_title)
   
@@ -62,9 +101,9 @@ graph_diff_touchstones <- function(dat, params, print_threshold = NA) {
 #' @param dat A dataframe (or similar) of country data for ...
 #' @param params A list (TODO consider using an S3 class) of parameters or the
 #'               plot
-#'
+#' @param compare A variable to compare across      
 #' @return The processesd data frame
-prep_diff_touchstone <- function(dat_all, params) {
+prep_diff_touchstone <- function(dat_all, params, compare) {
   # assume params had been checked
   
   # we need to get rid some columns so that the tidyr gather->unite->spread
@@ -83,6 +122,13 @@ prep_diff_touchstone <- function(dat_all, params) {
     filter(is_focal)
   
   dat <- filter_by_params(dat, params)
+  
+  # if no compare value has been supplied fill a dummy columnd with 1s
+  if (!is.null(compare)) {
+    dat$compare <- dat[, compare]
+  } else {
+    dat$compare <- rep(1, nrow(dat))
+  }
   
   ## renaming a couple of variables:
   dat <- dat %>%
@@ -116,18 +162,19 @@ prep_diff_touchstone <- function(dat_all, params) {
     mutate(diff_outcome_rate = t2_outcome_rate - t1_outcome_rate) %>%
     mutate(diff_intro = t2_year_intro - t1_year_intro) %>%
     mutate(diff_fvps = t2_fvps - t1_fvps) 
-  
   # assign a reason for the difference
   dat_wide <- gap_attribution(dat_wide)
-
+  
   ## here I'm filtering out some of the sins in gap_reasons
   ## TO DO: still need to debug the sins!
   dat_wide <- dat_wide %>%
     filter(gap_reason %in%
-             grep("([+-])", levels(dat_wide$gap_reason), value = TRUE)) %>%
-    group_by(gap_reason) %>%
+             grep("([+-])", levels(dat_wide$gap_reason), value = TRUE))
+  
+  dat_wide <- dat_wide %>%
+    group_by(gap_reason, compare)%>%
     summarise(tot = sum(diff_outcome, na.rm = TRUE))
-
+  
   return(dat_wide)
 }
 
