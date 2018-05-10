@@ -77,6 +77,22 @@ cum_metric_by_year <- function(i,res,vaccine_vector){
 #'
 #' @return The filtered data frame
 filter_by_params <- function(dat, params) {
+  # split campaign into intro
+  if (!is.null(params$split_intro)) {
+    if (params$split_intro) {
+      intro_date <- which(dat$year_intro >= params$year_current)
+      dat$activity_type[intro_date] <- "intro"
+    }
+  }  
+  
+  # combine Hib and HepB into PENTA
+  if (!is.null(params$comb_penta)) {
+    if (params$comb_penta) {
+      hep_hib <- which(dat$vaccine == "HepB" | dat$vaccine == "Hib3")
+      dat$vaccine[hep_hib] <- "Penta"
+    }
+  }
+  
   # Filter by country set
   pine <- c("PAK", "IND", "NGA", "ETH")
   if (!is.null(params$country_set)) {
@@ -156,7 +172,7 @@ filter_by_params <- function(dat, params) {
 
   if (nrow(dat) < 0)
     warning("There is no data for this set of parameters")
-
+  
   return(dat)
 }
 
