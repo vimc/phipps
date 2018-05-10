@@ -42,7 +42,7 @@ plot_generic_compare <- function(dat, params, compare, disciminent, cum_plot=FAL
       mutate(outcome = cumsum(outcome))
   }
   
-  rot_angle <- if (length(unique(dat$compare)) >= 4) {90} else {0}
+  rot_angle <- if (compare == "year" || length(unique(dat$compare)) <= 5) {0} else {90}
 
   # find the top n_plot compares by outcome
   if (ordered_compare) {
