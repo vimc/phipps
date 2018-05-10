@@ -19,6 +19,8 @@ plot_generic_compare <- function(dat, params, compare, disciminent) {
   if (no_disc) {
     disciminent <- compare # we set this 
   }
+  
+  dat <- filter_by_params(dat, params)
 
   dat$outcome <- dat[, params$metric]
   dat$compare <- dat[, compare]
@@ -26,12 +28,12 @@ plot_generic_compare <- function(dat, params, compare, disciminent) {
   
   ordered_compare <- is.numeric(dat$compare)
 
-  dat <- filter_by_params(dat, params)
-
   dat <- dat %>%
     group_by(compare, disc) %>%
     summarize(outcome = sum(outcome, na.rm = TRUE)) %>%
     arrange(desc(outcome))
+  
+  rot_angle <- if (length(unique(dat$compare)) >= 4) {90} else {0}
 
   # find the top n_plot compares by outcome
   if (ordered_compare) {
@@ -80,7 +82,7 @@ plot_generic_compare <- function(dat, params, compare, disciminent) {
     theme_bw() +
     theme(panel.grid.major = element_blank(),
           panel.grid.minor = element_blank(),
-          axis.text.x = element_text(angle = 90, hjust = 1),
+          axis.text.x = element_text(angle = rot_angle, hjust = 0.5),
           legend.title = element_blank()) +
     xlab("") + 
     ylab(units$ylabscale) + 
