@@ -9,10 +9,12 @@
 #'                be used to determine the x axis
 #' @param discriminent A string of the column name in dat for the variable that
 #'                     be used to determine the block of the bar chart
+#' @param cum_plot Generate a cumulative plot, this is ignored if compare is not
+#'                'year'
 #'
 #' @return A list containt p = ggplot object, d = the data frame used in the plot
 #' @export
-plot_generic_compare <- function(dat, params, compare, disciminent) {
+plot_generic_compare <- function(dat, params, compare, disciminent, cum_plot=FALSE) {
   dat$country_name = sapply(dat$country_name, shorten_name, USE.NAMES = FALSE)
   no_disc <- is.null(disciminent)
   
@@ -32,6 +34,13 @@ plot_generic_compare <- function(dat, params, compare, disciminent) {
     group_by(compare, disc) %>%
     summarize(outcome = sum(outcome, na.rm = TRUE)) %>%
     arrange(desc(outcome))
+  
+  if (cum_plot && compare == "year") {
+    dat <- dat %>%
+      group_by(disc) %>%
+      arrange(compare) %>% # note at this point compare is year, so this sorts by year
+      mutate(outcome = cumsum(outcome))
+  }
   
   rot_angle <- if (length(unique(dat$compare)) >= 4) {90} else {0}
 
