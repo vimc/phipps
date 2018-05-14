@@ -60,7 +60,9 @@ plot_parameters <- list(touchstone            = "201210gavi-201303gavi",
                         title                 = "Comparison of impact between gavi status by activity type",
                         n_plot                = 10)
 
-plot_generic_compare(impact_data, plot_parameters, "gavi_cofin_status", "activity_type")
+plotable <- plot_generic_compare(impact_data, plot_parameters, "gavi_cofin_status", "activity_type")
+plotable$p
+plotable$d
 ```
 
 ## Example of a simple Power Point document

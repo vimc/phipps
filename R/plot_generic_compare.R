@@ -9,16 +9,20 @@
 #'                be used to determine the x axis
 #' @param discriminent A string of the column name in dat for the variable that
 #'                     be used to determine the block of the bar chart
+#' @param cum_plot Generate a cumulative plot, this is ignored if compare is not
+#'                'year'
 #'
-#' @return A ggplot object
+#' @return A list containt p = ggplot object, d = the data frame used in the plot
 #' @export
-plot_generic_compare <- function(dat, params, compare, disciminent) {
+plot_generic_compare <- function(dat, params, compare, disciminent, cum_plot=FALSE) {
   dat$country_name = sapply(dat$country_name, shorten_name, USE.NAMES = FALSE)
   no_disc <- is.null(disciminent)
   
   if (no_disc) {
     disciminent <- compare # we set this 
   }
+  
+  dat <- filter_by_params(dat, params)
 
   dat$outcome <- dat[, params$metric]
   dat$compare <- dat[, compare]
@@ -26,12 +30,19 @@ plot_generic_compare <- function(dat, params, compare, disciminent) {
   
   ordered_compare <- is.numeric(dat$compare)
 
-  dat <- filter_by_params(dat, params)
-
   dat <- dat %>%
     group_by(compare, disc) %>%
     summarize(outcome = sum(outcome, na.rm = TRUE)) %>%
     arrange(desc(outcome))
+  
+  if (cum_plot && compare == "year") {
+    dat <- dat %>%
+      group_by(disc) %>%
+      arrange(compare) %>% # note at this point compare is year, so this sorts by year
+      mutate(outcome = cumsum(outcome))
+  }
+  
+  rot_angle <- if (compare == "year" || length(unique(dat$compare)) <= 5) {0} else {90}
 
   # find the top n_plot compares by outcome
   if (ordered_compare) {
@@ -45,7 +56,7 @@ plot_generic_compare <- function(dat, params, compare, disciminent) {
       summarize(outcome = sum(outcome, na.rm = TRUE)) %>%
       arrange(desc(outcome))   
   }
-               
+
   units <- graph_num_div(max(df_top_compares$outcome), params$metric)
   dat$outcome <- dat$outcome / units$numdiv
   df_top_compares$outcome <- df_top_compares$outcome / units$numdiv
@@ -72,7 +83,7 @@ plot_generic_compare <- function(dat, params, compare, disciminent) {
   dat$compare <- as.factor(dat$compare)
   df_top_compares$compare <- as.factor(df_top_compares$compare)
 
-  ggplot(dat, aes(x = compare,
+  p <- ggplot(dat, aes(x = compare,
                   y = outcome,
                   fill = factor(disc))) +
     geom_bar(stat = "identity", color = "black") + 
@@ -80,7 +91,7 @@ plot_generic_compare <- function(dat, params, compare, disciminent) {
     theme_bw() +
     theme(panel.grid.major = element_blank(),
           panel.grid.minor = element_blank(),
-          axis.text.x = element_text(angle = 90, hjust = 1),
+          axis.text.x = element_text(angle = rot_angle, hjust = 0.5),
           legend.title = element_blank()) +
     xlab("") + 
     ylab(units$ylabscale) + 
@@ -90,4 +101,6 @@ plot_generic_compare <- function(dat, params, compare, disciminent) {
                      colour = "black", size = 3) +
     
     ggtitle(params$title)
+  
+  return(list(p=p, d=dat))
 }
