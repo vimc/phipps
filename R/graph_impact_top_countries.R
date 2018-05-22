@@ -71,7 +71,6 @@ prep_impact_top_countries <- function(dat, params) {
 
   ## aggregating by country and vaccine_delivery:
   dat <- dat %>%
-    ## filter(country_name %in% top_countries) %>%
     group_by(country_name, vaccine_delivery) %>%
     summarize(outcome = sum(outcome, na.rm = TRUE))
   ## converting country to factor in order to guarantee ordering:
@@ -262,25 +261,6 @@ get_order_of_magnitude <- function(x) {
               unit_label = unit_label[magnitude]))
 }
 
-################################################################################
-#' Creates a human readable label for the y axis of the graph_impact_top_countries
-#' plot
-#'
-#' @param string The name of the outcome column in the full data set, usually
-#'               "deaths_averted" or "cases_averted"
-#' @param unit_label A string for the order of magnitude e.g. "thousands",
-#'                   "millions" or "billions". usualy output from get_order_of_magnitude()
-#'
-#' @return The y label as a string
-make_tidy_ylab <- function(string, unit_label = "") {
-
-  string <- gsub("_", " ", string)
-  string <- paste0("Future ", string)
-
-  if (unit_label != "") string <- paste0(string, " in ", unit_label)
-
-  return(string)
-}
 
 
 

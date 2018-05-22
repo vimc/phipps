@@ -25,15 +25,13 @@ plot_generic_compare <- function(dat, params, compare, disciminent, cum_plot=FAL
   }
   
   dat <- filter_by_params(dat, params)
-  
+
   dat$outcome <- dat[, params$metric]
   dat$compare <- dat[, compare]
   dat$disc    <- dat[, disciminent]
   
   ordered_compare <- is.numeric(dat$compare)
-  
-  dat <- filter_by_params(dat, params)
-  
+
   dat <- dat %>%
     group_by(compare, disc) %>%
     summarize(outcome = sum(outcome, na.rm = TRUE)) %>%
@@ -46,6 +44,8 @@ plot_generic_compare <- function(dat, params, compare, disciminent, cum_plot=FAL
       mutate(outcome = cumsum(outcome))
   }
   
+  rot_angle <- if (compare == "year" || length(unique(dat$compare)) <= 5) {0} else {90}
+
   # find the top n_plot compares by outcome
   if (ordered_compare) {
     df_top_compares <- dat %>%
@@ -58,8 +58,6 @@ plot_generic_compare <- function(dat, params, compare, disciminent, cum_plot=FAL
       summarize(outcome = sum(outcome, na.rm = TRUE)) %>%
       arrange(desc(outcome))   
   }
-
-  rot_angle <- if (compare == "year" || length(unique(dat$compare)) <= 5) {0} else {90}
   
   units <- graph_num_div(max(df_top_compares$outcome), params$metric)
   dat$outcome <- dat$outcome / units$numdiv
@@ -115,7 +113,6 @@ plot_generic_compare <- function(dat, params, compare, disciminent, cum_plot=FAL
   if (plot_mode == "highcharter") {
     p <- highchart(dat, "column", hcaes(x = compare, y = outcome))
   }
-  
   
   return(list(p = p, d = dat))
 }
