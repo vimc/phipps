@@ -7,9 +7,9 @@
 #' @export
 create_powerpoint <- function(title, template_path=NULL) {
   if (!is.null(template_path)) {
-    return(pptx(title = title, template = template_path))
+    return(read_pptx(title = title, template = template_path))
   } else {
-    return(pptx(title = title))
+    return(read_pptx(title = title))
   }
 }
 
@@ -21,7 +21,7 @@ create_powerpoint <- function(title, template_path=NULL) {
 #' @return Nothing
 #' @export
 save_powerpoint <- function(doc, path) {
-  writeDoc(doc, path)
+  print(doc, target = path) 
 }
 
 ################################################################################
@@ -72,11 +72,7 @@ add_title_slide <- function(doc,
 #' @return the temporary Power Point file with a text slide added
 #' @export
 add_generic_slide <- function(doc,
-                              title,
-                              cols=1,
-                              footer=NULL,
-                              page_number=NULL,
-                              template_override = NULL) {
+                              layout) {
   if (cols == 1) {
     template_name <- "Title and Content"
   } else if (cols == 2) {
